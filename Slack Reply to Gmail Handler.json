@@ -1,0 +1,1094 @@
+{
+  "name": "Slack Reply to Gmail Handler",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "Slack-reply",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        448
+      ],
+      "id": "978af2a5-6c12-45ff-a7be-6f72fa8b7203",
+      "name": "Slack Interaction Webhook",
+      "webhookId": "63dee343-5a9e-4b08-aa02-b2ff8c1cecfe"
+    },
+    {
+      "parameters": {
+        "jsCode": "const payload = JSON.parse($json.body.payload);\n\nconst rawMeta =\n  payload.actions?.[0]?.value ||\n  payload.view?.private_metadata ||\n  \"{}\";\n\nlet meta = {};\n\ntry {\n  meta = JSON.parse(rawMeta);\n} catch (error) {\n  meta = {\n    account: \"awais_mail\",\n    message_id: rawMeta,\n  };\n}\n\nconst replyText =\n  payload.view?.state?.values?.reply_block?.reply_text?.value || \"\";\n\n// Slack message/channel info for reaction\nconst slackChannelId =\n  payload.channel?.id ||\n  payload.container?.channel_id ||\n  meta.channel_id ||\n  \"\";\n\nconst slackMessageTs =\n  payload.container?.message_ts ||\n  payload.message?.ts ||\n  meta.message_ts ||\n  \"\";\n\nreturn [\n  {\n    json: {\n      slack_type: payload.type,\n      trigger_id: payload.trigger_id || \"\",\n      account: meta.account || \"awais_mail\",\n      gmail_message_id: meta.message_id || \"\",\n      reply_text: replyText,\n      user_id: payload.user?.id || \"\",\n      response_url: payload.response_url || \"\",\n      slack_channel_id: slackChannelId,\n      slack_message_ts: slackMessageTs,\n    },\n  },\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        224,
+        448
+      ],
+      "id": "376bd6fa-cee1-4d1a-8da5-e9eb39fa147a",
+      "name": "Parse Slack Payload"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "e8cb6c3c-464f-4125-9835-362d50d79f42",
+              "leftValue": "={{ $json.slack_type }}",
+              "rightValue": "block_actions",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        448,
+        448
+      ],
+      "id": "78b71e81-6fdf-476a-8cf2-5edb8851677c",
+      "name": "Decide Open Reply Modal"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        896,
+        -32
+      ],
+      "id": "175aa7cd-6edf-4bf5-b5f7-f5926958a25b",
+      "name": "Respond Modal Opened"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.account }}",
+                    "rightValue": "awais_mail",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "6a8e529b-317a-4a1c-93fd-9ecbd913e1d2"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "e3f8c60a-b0f0-43fb-93cc-29995bc42699",
+                    "leftValue": "={{ $json.account }}",
+                    "rightValue": "arshad_mail",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "e7926260-40d7-4698-b937-03ca2f6426d6",
+                    "leftValue": "={{ $json.account }}",
+                    "rightValue": "bilal_mail",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "39801102-df55-4f76-8d33-90cd46d92a49",
+                    "leftValue": "={{ $json.account }}",
+                    "rightValue": "fahad_mail",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "8d6d4c58-a203-4a6c-984e-54844bf6a848",
+                    "leftValue": "={{ $json.account }}",
+                    "rightValue": "tahir_mail",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "de29a925-6f24-431d-9b3c-e3a087372380",
+                    "leftValue": "={{ $json.account }}",
+                    "rightValue": "awaisdev_mail",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "becdaeaa-2721-42ef-84f7-e31902b802f3",
+                    "leftValue": "={{ $json.account }}",
+                    "rightValue": "yasir_mail",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "8a272d6a-d3d4-44d6-8edd-4518266e1158",
+                    "leftValue": "={{ $json.account }}",
+                    "rightValue": "fahadanalyst_mail",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "c499a727-3850-45ac-ac5b-6cf3dc8b90e1",
+                    "leftValue": "={{ $json.account }}",
+                    "rightValue": "annas_mail",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        672,
+        816
+      ],
+      "id": "10fdc32b-4b37-4c49-a5db-1e6a562a505b",
+      "name": "Route by Gmail Account"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"response_action\": \"clear\"\n}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        896,
+        160
+      ],
+      "id": "90bf6872-f847-46ec-96a1-2eb66c64c1eb",
+      "name": "Awais - Respond to Slack"
+    },
+    {
+      "parameters": {
+        "operation": "reply",
+        "messageId": "={{ $json.gmail_message_id }}",
+        "emailType": "text",
+        "message": "={{ $json.reply_text }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1120,
+        160
+      ],
+      "id": "2d04e613-ef27-4590-bd20-0ccec11c7223",
+      "name": "Awais - Send Gmail Reply",
+      "webhookId": "b939ac1e-a200-48b5-b3e7-47c69d255bf3",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "n5rD8PGpe3MY7yqM",
+          "name": "Awais Mail"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"response_action\": \"clear\"\n}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        896,
+        352
+      ],
+      "id": "543c94e6-6def-4594-87ae-afade56f42f7",
+      "name": "Arshad - Respond to Slack"
+    },
+    {
+      "parameters": {
+        "operation": "reply",
+        "messageId": "={{ $json.gmail_message_id }}",
+        "emailType": "text",
+        "message": "={{ $json.reply_text }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1120,
+        352
+      ],
+      "id": "5e39241c-a117-4dcf-9a2a-051b671eda55",
+      "name": "Arshad - Send Gmail Reply",
+      "webhookId": "b939ac1e-a200-48b5-b3e7-47c69d255bf3",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "vt5bEn8YSYmxQXmj",
+          "name": "Arshad Mail"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"response_action\": \"clear\"\n}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        896,
+        544
+      ],
+      "id": "403ef71a-8960-40bb-8255-e469fab884a9",
+      "name": "Bilal - Respond to Slack"
+    },
+    {
+      "parameters": {
+        "operation": "reply",
+        "messageId": "={{ $json.gmail_message_id }}",
+        "emailType": "text",
+        "message": "={{ $json.reply_text }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1120,
+        544
+      ],
+      "id": "f2da88c1-5bc3-45da-9738-1baf927b39ed",
+      "name": "Bilal - Send Gmail Reply",
+      "webhookId": "b939ac1e-a200-48b5-b3e7-47c69d255bf3",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "s0Rbzat3k7ArOxjd",
+          "name": "Bilal Mail"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"response_action\": \"clear\"\n}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        896,
+        736
+      ],
+      "id": "a56de0c0-e4c3-455f-b326-22cc1c688206",
+      "name": "Fahad - Respond to Slack"
+    },
+    {
+      "parameters": {
+        "operation": "reply",
+        "messageId": "={{ $json.gmail_message_id }}",
+        "emailType": "text",
+        "message": "={{ $json.reply_text }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1120,
+        736
+      ],
+      "id": "de68914a-6bef-4284-9b31-6378a137f603",
+      "name": "Fahad - Send Gmail Reply",
+      "webhookId": "b939ac1e-a200-48b5-b3e7-47c69d255bf3",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "U2wSFSvimW4uErtS",
+          "name": "Fahad Mail"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "2e2d83e2-fdb7-48fa-811f-358f859aa461",
+              "leftValue": "={{ !$json.error }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1344,
+        160
+      ],
+      "id": "e87d9b82-544a-4db9-afce-7a5b1b96ad5c",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://slack.com/api/reactions.add",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer xoxb-5380556273415-11158807020001-sKZqoJJviMyANV0ayi2UdKWj"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "channel",
+              "value": "C0B4PL5B8LU"
+            },
+            {
+              "name": "timestamp",
+              "value": "={{ $(\"Parse Slack Payload\").first().json.slack_message_ts }}"
+            },
+            {
+              "name": "name",
+              "value": "white_check_mark"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1568,
+        64
+      ],
+      "id": "a8240409-0162-441e-bf3e-9750eaa396be",
+      "name": "Awais - Add Success Reaction"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://slack.com/api/reactions.add",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer xoxb-5380556273415-11158807020001-sKZqoJJviMyANV0ayi2UdKWj"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "channel",
+              "value": "={{ $(\"Parse Slack Payload\").first().json.slack_channel_id }}"
+            },
+            {
+              "name": "timestamp",
+              "value": "={{ $(\"Parse Slack Payload\").first().json.slack_message_ts }}"
+            },
+            {
+              "name": "name",
+              "value": "white_check_mark"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1568,
+        256
+      ],
+      "id": "9fd4ecae-a96a-414d-9a9d-e60724739083",
+      "name": "Awais - Add Failed Reaction"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://slack.com/api/views.open",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer xoxb-5380556273415-11158807020001-sKZqoJJviMyANV0ayi2UdKWj"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "trigger_id",
+              "value": "={{ $json.trigger_id }}"
+            },
+            {
+              "name": "view",
+              "value": "={{ JSON.stringify({\n  type: \"modal\",\n  callback_id: \"send_customer_reply\",\n  title: {\n    type: \"plain_text\",\n    text: \"Reply to Customer\"\n  },\n  submit: {\n    type: \"plain_text\",\n    text: \"Send Reply\"\n  },\n  close: {\n    type: \"plain_text\",\n    text: \"Cancel\"\n  },\n  private_metadata: JSON.stringify({\n    account: $json.account,\n    message_id: $json.gmail_message_id,\n    channel_id: $json.slack_channel_id,\n    message_ts: $json.slack_message_ts\n  }),\n  blocks: [\n    {\n      type: \"section\",\n      text: {\n        type: \"mrkdwn\",\n        text: \"*Write your reply below.*\\nThis will be sent back to the same email thread.\"\n      }\n    },\n    {\n      type: \"input\",\n      block_id: \"reply_block\",\n      label: {\n        type: \"plain_text\",\n        text: \"Message\"\n      },\n      element: {\n        type: \"plain_text_input\",\n        action_id: \"reply_text\",\n        multiline: true,\n        placeholder: {\n          type: \"plain_text\",\n          text: \"Type your reply here...\"\n        }\n      }\n    }\n  ]\n}) }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        672,
+        -32
+      ],
+      "id": "de190c22-7b92-4e27-b702-7cfeb356ca63",
+      "name": "Open Reply Modal"
+    },
+    {
+      "parameters": {
+        "operation": "reply",
+        "messageId": "={{ $json.gmail_message_id }}",
+        "emailType": "text",
+        "message": "={{ $json.reply_text }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1120,
+        928
+      ],
+      "id": "e05981a7-a719-4c77-8cda-6ca2211ab7ab",
+      "name": "Tahir - Send Gmail Reply",
+      "webhookId": "b939ac1e-a200-48b5-b3e7-47c69d255bf3",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "xxP41DsJ6HGf0Rfs",
+          "name": "Tahir Mail"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"response_action\": \"clear\"\n}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        896,
+        928
+      ],
+      "id": "03afce11-ff78-4c9c-b64c-2a194f9ceaee",
+      "name": "Tahir - Respond to Slack"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"response_action\": \"clear\"\n}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        896,
+        1120
+      ],
+      "id": "5188f69f-2153-46a1-b21d-372cb56b782e",
+      "name": "AwaisDev - Respond to Slack"
+    },
+    {
+      "parameters": {
+        "operation": "reply",
+        "messageId": "={{ $json.gmail_message_id }}",
+        "emailType": "text",
+        "message": "={{ $json.reply_text }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1120,
+        1120
+      ],
+      "id": "82adaed9-8842-45a5-8d08-a78c1a0bf5f0",
+      "name": "AwaisDev - Send Gmail Reply",
+      "webhookId": "b939ac1e-a200-48b5-b3e7-47c69d255bf3",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "FWj5JCHA3r56pmzc",
+          "name": "AwaisDev Mail"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"response_action\": \"clear\"\n}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        896,
+        1312
+      ],
+      "id": "137e7a8d-aa47-4b34-a5cf-70ddd7f3772f",
+      "name": "Yasir - Respond to Slack"
+    },
+    {
+      "parameters": {
+        "operation": "reply",
+        "messageId": "={{ $json.gmail_message_id }}",
+        "emailType": "text",
+        "message": "={{ $json.reply_text }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1120,
+        1312
+      ],
+      "id": "fda4427e-6cfa-4314-8781-053f5d27b556",
+      "name": "Yasir - Send Gmail Reply",
+      "webhookId": "b939ac1e-a200-48b5-b3e7-47c69d255bf3",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "haN3cD67AQoKQ1Ug",
+          "name": "Yasir Mail"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"response_action\": \"clear\"\n}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        896,
+        1504
+      ],
+      "id": "b286973b-55ca-4371-949c-5d6a3d7cf536",
+      "name": "FahadAnalyst - Respond to Slack"
+    },
+    {
+      "parameters": {
+        "operation": "reply",
+        "messageId": "={{ $json.gmail_message_id }}",
+        "emailType": "text",
+        "message": "={{ $json.reply_text }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1120,
+        1504
+      ],
+      "id": "d801b125-451e-49b2-a1b5-da3f062e762d",
+      "name": "FahadAnalyst - Send Gmail Reply",
+      "webhookId": "b939ac1e-a200-48b5-b3e7-47c69d255bf3",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "FMCEmLReAkIuDyYo",
+          "name": "FahadAnalyst Mail"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"response_action\": \"clear\"\n}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        896,
+        1696
+      ],
+      "id": "0eb8dfd2-c4c8-481e-b2c7-2e2ed84442c4",
+      "name": "Annas - Respond to Slack"
+    },
+    {
+      "parameters": {
+        "operation": "reply",
+        "messageId": "={{ $json.gmail_message_id }}",
+        "emailType": "text",
+        "message": "={{ $json.reply_text }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1120,
+        1696
+      ],
+      "id": "dd0cb48c-6203-4f4c-b7d8-363019d8ef17",
+      "name": "Annas - Send Gmail Reply",
+      "webhookId": "b939ac1e-a200-48b5-b3e7-47c69d255bf3",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "pskXKQZ8ABnEY1F5",
+          "name": "Annas Mail"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Slack Interaction Webhook": {
+      "main": [
+        [
+          {
+            "node": "Parse Slack Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Slack Payload": {
+      "main": [
+        [
+          {
+            "node": "Decide Open Reply Modal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Decide Open Reply Modal": {
+      "main": [
+        [
+          {
+            "node": "Open Reply Modal",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Route by Gmail Account",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route by Gmail Account": {
+      "main": [
+        [
+          {
+            "node": "Awais - Respond to Slack",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Arshad - Respond to Slack",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Bilal - Respond to Slack",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Fahad - Respond to Slack",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Tahir - Respond to Slack",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AwaisDev - Respond to Slack",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Yasir - Respond to Slack",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "FahadAnalyst - Respond to Slack",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Annas - Respond to Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Awais - Respond to Slack": {
+      "main": [
+        [
+          {
+            "node": "Awais - Send Gmail Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Awais - Send Gmail Reply": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Arshad - Respond to Slack": {
+      "main": [
+        [
+          {
+            "node": "Arshad - Send Gmail Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Bilal - Respond to Slack": {
+      "main": [
+        [
+          {
+            "node": "Bilal - Send Gmail Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fahad - Respond to Slack": {
+      "main": [
+        [
+          {
+            "node": "Fahad - Send Gmail Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Awais - Add Success Reaction",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Awais - Add Failed Reaction",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Open Reply Modal": {
+      "main": [
+        [
+          {
+            "node": "Respond Modal Opened",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tahir - Respond to Slack": {
+      "main": [
+        [
+          {
+            "node": "Tahir - Send Gmail Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AwaisDev - Respond to Slack": {
+      "main": [
+        [
+          {
+            "node": "AwaisDev - Send Gmail Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Yasir - Respond to Slack": {
+      "main": [
+        [
+          {
+            "node": "Yasir - Send Gmail Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "FahadAnalyst - Respond to Slack": {
+      "main": [
+        [
+          {
+            "node": "FahadAnalyst - Send Gmail Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Annas - Respond to Slack": {
+      "main": [
+        [
+          {
+            "node": "Annas - Send Gmail Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "errorWorkflow": "oqcKErWhW0OgVf5d"
+  },
+  "versionId": "f055fc91-9744-4d52-a969-ce8f1f644506",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "66f774a707c4d3ce47e7ce092362e0e9e2f6d8b6c607539837e477c0a5d8d4af"
+  },
+  "id": "zAYxugorUnFzG6sL",
+  "tags": []
+}
